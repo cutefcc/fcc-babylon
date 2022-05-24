@@ -42,10 +42,14 @@ class GameScene extends BABYLON.Scene {
       "house.glb"
     ).then((result) => {
       // 0 是整体， 1 2 是对应房子的下部 和 房顶
+
       console.log("1", result);
       // result.meshes[1].position.x = 2;
       // result.meshes[1].position.y = 2;
       result.meshes[0].position.x = 1;
+      // 旋转 绕 y
+      result.meshes[1].rotation.y = Math.PI / 2;
+      result.meshes[2].rotation.y = Math.PI / 2;
       // result.meshes[0].position.y = 2;
       // result.meshes[2].position.x = 1;
       // const myMesh1 = scene.getMeshByName("myMesh_1");
@@ -77,7 +81,15 @@ createEngine().then((engine) => {
   );
   let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
   ground.material = groundMaterial;
-  // create a box
+  // add sound
+  const sound = new BABYLON.Sound(
+    "bird",
+    "http://localhost:8080/music/635105__inchadney__field-recording.wav",
+    scene,
+    null,
+    { loop: true, autoplay: true }
+  );
+  // create 3 box
   const box1 = BABYLON.MeshBuilder.CreateBox("box", {});
   box1.position.z = -4.5;
   box1.position.x = -4.5;
