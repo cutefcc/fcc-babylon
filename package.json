@@ -1,0 +1,17 @@
+{
+  "name": "babylon-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel ./src/index.html --open"
+  },
+  "devDependencies": {
+    "parcel": "^2.5.0",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^5.7.0",
+    "@babylonjs/loaders": "^5.7.0"
+  }
+}
