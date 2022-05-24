@@ -40,7 +40,28 @@ class GameScene extends BABYLON.Scene {
       "",
       "http://localhost:8080/",
       "house.glb"
-    );
+    ).then((result) => {
+      // 0 是整体， 1 2 是对应房子的下部 和 房顶
+      console.log("1", result);
+      // result.meshes[1].position.x = 2;
+      // result.meshes[1].position.y = 2;
+      result.meshes[0].position.x = 1;
+      // result.meshes[0].position.y = 2;
+      // result.meshes[2].position.x = 1;
+      // const myMesh1 = scene.getMeshByName("myMesh_1");
+      // myMesh1.rotation.y = Math.PI / 2;
+    });
+    await BABYLON.SceneLoader.ImportMeshAsync(
+      "",
+      "http://localhost:8080/",
+      "first.glb"
+    ).then((result) => {
+      console.log("2", result);
+      result.meshes[0].position.x = -1;
+      // result.meshes[0].position.y = 1;
+      // const myMesh1 = scene.getMeshByName("myMesh_1");
+      // myMesh1.rotation.y = Math.PI / 2;
+    });
   }
 }
 
