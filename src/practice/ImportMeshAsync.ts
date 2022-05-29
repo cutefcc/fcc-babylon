@@ -1,5 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders";
+import "@babylonjs/inspector";
+import gsap from "gsap";
 import * as earcut from "earcut";
 (window as any).earcut = earcut;
 
@@ -44,7 +46,17 @@ class GameScene extends BABYLON.Scene {
       "house.glb"
     ).then((result) => {
       // 0 是整体， 1 2 是对应房子的下部 和 房顶
-
+      const semi_house = <BABYLON.Mesh[]>(
+        this.getTransformNodeById("semi_house")!.getChildren()
+      );
+      console.log("semi_house", semi_house);
+      result.meshes[0].rotation = new BABYLON.Vector3(0, 0, 0);
+      gsap.to(result.meshes[0].rotation, {
+        y: Math.PI * 2,
+        duration: 2,
+        repeat: -1,
+        ease: "linear",
+      });
       console.log("1", result);
       // result.meshes[1].position.x = 2;
       // result.meshes[1].position.y = 2;
@@ -69,33 +81,36 @@ class GameScene extends BABYLON.Scene {
       // const myMesh1 = scene.getMeshByName("myMesh_1");
       // myMesh1.rotation.y = Math.PI / 2;
     });
-    await BABYLON.SceneLoader.ImportMeshAsync(
-      "",
-      "http://localhost:8080/",
-      "animal.glb"
-    ).then((result) => {
-      console.log("2", result);
-      result.meshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
-      result.meshes[0].position.x = -6.5;
-      result.meshes[0].position.z = 6.5;
-      result.meshes[1].rotation.y = Math.PI;
-      result.meshes[2].rotation.y = Math.PI;
-      result.meshes[3].rotation.y = Math.PI;
-      result.meshes[4].rotation.y = Math.PI;
-      result.meshes[5].rotation.y = Math.PI;
-      result.meshes[6].rotation.y = Math.PI;
-      // result.meshes[0].position.x = -9.5;
-      // result.meshes[0].position.y = 0.5;
-      // result.meshes[0].position.z = 9.5;
-      // const myMesh1 = scene.getMeshByName("myMesh_1");
-      // myMesh1.rotation.y = Math.PI / 2;
-    });
+    // await BABYLON.SceneLoader.ImportMeshAsync(
+    //   "",
+    //   "http://localhost:8080/",
+    //   "animal.glb"
+    // ).then((result) => {
+    //   console.log("2", result);
+    //   result.meshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+    //   result.meshes[0].position.x = -6.5;
+    //   result.meshes[0].position.z = 6.5;
+    //   result.meshes[1].rotation.y = Math.PI;
+    //   result.meshes[2].rotation.y = Math.PI;
+    //   result.meshes[3].rotation.y = Math.PI;
+    //   result.meshes[4].rotation.y = Math.PI;
+    //   result.meshes[5].rotation.y = Math.PI;
+    //   result.meshes[6].rotation.y = Math.PI;
+    //   // result.meshes[0].position.x = -9.5;
+    //   // result.meshes[0].position.y = 0.5;
+    //   // result.meshes[0].position.z = 9.5;
+    //   // const myMesh1 = scene.getMeshByName("myMesh_1");
+    //   // myMesh1.rotation.y = Math.PI / 2;
+    // });
   }
 }
 
 createEngine().then((engine) => {
   // create scene
   const scene = new GameScene(engine);
+  scene.debugLayer.show({
+    embedMode: true,
+  });
   // create ground
   var ground = BABYLON.MeshBuilder.CreateGround(
     "ground",
@@ -208,33 +223,50 @@ createEngine().then((engine) => {
   }
 
   // create car
-  // const car = buildCar();
-  // car.position.x = -6;
+  const car = buildCar(scene);
+  car.position.x = -3;
+  car.position.z = 6;
+  car.position.y = 0.125;
+  car.rotation.x = -Math.PI / 2;
+  car.rotation.y = Math.PI / 4;
 
-  // const wheelRB = BABYLON.MeshBuilder.CreateCylinder("wheelRB", {
-  //   diameter: 0.125,
-  //   height: 0.05,
-  // });
-  // wheelRB.parent = car;
-  // wheelRB.position.z = -0.1;
-  // wheelRB.position.x = -0.2;
-  // wheelRB.position.y = 0.035;
+  const animCar = new BABYLON.Animation(
+    "carAnimation",
+    "position.z",
+    30,
+    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+  );
 
-  // const wheelRF = wheelRB.clone("wheelRF");
-  // wheelRF.position.x = 0.1;
+  const carKeys = [];
 
-  // const wheelLB = wheelRB.clone("wheelLB");
-  // wheelLB.position.y = -0.2 - 0.035;
+  carKeys.push({
+    frame: 0,
+    value: 8,
+  });
 
-  // const wheelLF = wheelRF.clone("wheelLF");
-  // wheelLF.position.y = -0.2 - 0.035;
+  carKeys.push({
+    frame: 150,
+    value: -7,
+  });
 
+  carKeys.push({
+    frame: 200,
+    value: -7,
+  });
+
+  animCar.setKeys(carKeys);
+
+  car.animations = [];
+  car.animations.push(animCar);
+
+  scene.beginAnimation(car, 0, 200, true);
   engine.runRenderLoop(() => {
     scene.render();
   });
 });
 
-const buildCar = () => {
+const buildCar = (scene) => {
   //base
   const outline = [
     new BABYLON.Vector3(-0.3, 0, -0.1),
