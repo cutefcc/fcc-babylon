@@ -1,4 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
+import "@babylonjs/loaders";
 
 const createEngine = async () => {
   const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
@@ -11,7 +12,7 @@ class GameScene extends BABYLON.Scene {
     super(engine);
     this.createCamera();
     this.createLight();
-    // this.loadModel();
+    this.loadModel();
   }
   createCamera() {
     const camera = new BABYLON.ArcRotateCamera(
@@ -35,19 +36,25 @@ class GameScene extends BABYLON.Scene {
   }
 
   async loadModel() {
-    await BABYLON.SceneLoader.AppendAsync(
-      "http://localhost:8080/modules/",
-      // "VCAN-60-50-02-1.stl",
-      "MobilePhoneBracket-76.2.stl",
-      // "1_3.glb",
-      this
+    await BABYLON.SceneLoader.ImportMeshAsync(
+      "",
+      "http://localhost:8080/",
+      "donut.glb"
     );
+
+    // await BABYLON.SceneLoader.AppendAsync(
+    //   "http://localhost:8080/",
+    //   // "VCAN-60-50-02-1.stl",
+    //   "donut.glb",
+    //   // "1_3.glb",
+    //   this
+    // );
   }
 }
 
 createEngine().then((engine) => {
   const scene = new GameScene(engine);
-  const box = BABYLON.MeshBuilder.CreateBox("box", {}, scene);
+  // const box = BABYLON.MeshBuilder.CreateBox("box", {}, scene);
   engine.runRenderLoop(() => {
     scene.render();
   });

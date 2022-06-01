@@ -46,10 +46,10 @@ class GameScene extends BABYLON.Scene {
       "house.glb"
     ).then((result) => {
       // 0 是整体， 1 2 是对应房子的下部 和 房顶
-      const semi_house = <BABYLON.Mesh[]>(
-        this.getTransformNodeById("semi_house")!.getChildren()
-      );
-      console.log("semi_house", semi_house);
+      // const semi_house = <BABYLON.Mesh[]>(
+      //   this.getTransformNodeById("semi_house")!.getChildren()
+      // );
+      // console.log("semi_house", semi_house);
       result.meshes[0].rotation = new BABYLON.Vector3(0, 0, 0);
       gsap.to(result.meshes[0].rotation, {
         y: Math.PI * 2,
@@ -57,7 +57,6 @@ class GameScene extends BABYLON.Scene {
         repeat: -1,
         ease: "linear",
       });
-      console.log("1", result);
       // result.meshes[1].position.x = 2;
       // result.meshes[1].position.y = 2;
       result.meshes[0].position.x = 1;
