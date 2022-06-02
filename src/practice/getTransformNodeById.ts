@@ -17,7 +17,7 @@ class GameScene extends BABYLON.Scene {
     this.createCamera();
     this.createLight();
     // this.#createSkyBox();
-    // this.loadModel();
+    this.loadModel();
   }
 
   createCamera() {
@@ -48,17 +48,34 @@ class GameScene extends BABYLON.Scene {
       "house.glb"
     ).then((result) => {
       // 0 是整体， 1 2 是对应房子的下部 和 房顶
-      // const semi_house = <BABYLON.Mesh[]>(
-      //   this.getTransformNodeById("semi_house")!.getChildren()
-      // );
-      // console.log("semi_house", semi_house);
+      const semi_house = <BABYLON.Mesh[]>(
+        this.getTransformNodeById("semi_house")!.getChildren()
+      );
+
+      console.log("semi_house", semi_house);
       //   result.meshes[0].rotation = new BABYLON.Vector3(0, 0, 0);
-      gsap.to(result.meshes[0].rotation, {
-        // y: Math.PI * 2,
-        duration: 2,
-        repeat: -1,
-        ease: "linear",
+      //   gsap.to(result.meshes[0].rotation, {
+      //     y: Math.PI * 2,
+      //     duration: 2,
+      //     repeat: -1,
+      //     ease: "linear",
+      //   });
+      semi_house.forEach((item) => {
+        item.rotation = new BABYLON.Vector3(0, 0, 0);
+        gsap.to(item.rotation, {
+          y: Math.PI * 2,
+          duration: 2,
+          repeat: -1,
+          ease: "linear",
+        });
       });
+      //   semi_house[0].rotation = new BABYLON.Vector3(0, 0, 0);
+      //   gsap.to(semi_house[0].rotation, {
+      //     y: Math.PI * 2,
+      //     duration: 2,
+      //     repeat: -1,
+      //     ease: "linear",
+      //   });
     });
   }
   // 私有属性、方法，v8对其做了很多优化
@@ -101,7 +118,7 @@ createEngine().then((engine) => {
   ground.material = groundMat; //Place the material property of the ground
   // ground.material = groundMaterial;
 
-  const box1 = BABYLON.MeshBuilder.CreateBox("box", {});
+  const box1 = BABYLON.MeshBuilder.CreateBox("box_liuhao", {});
   box1.position.z = 0;
   box1.position.x = 5;
   box1.position.y = 0.5;
