@@ -18,6 +18,7 @@ class GameScene extends BABYLON.Scene {
 
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
     const physicsPlugin = new BABYLON.CannonJSPlugin();
+    // 用物理引擎做一个 碰撞：涉及到碰撞系数，碰撞类型，碰撞模型
     this.enablePhysics(gravityVector, physicsPlugin);
     this.createGround();
     this.createBall();

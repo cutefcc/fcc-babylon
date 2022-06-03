@@ -16,6 +16,7 @@ class GameScene extends BABYLON.Scene {
     super(engine);
     this.createCamera();
     this.createLight();
+    this.#createSkyBox();
     this.loadModel();
   }
   createCamera() {
@@ -38,7 +39,6 @@ class GameScene extends BABYLON.Scene {
     );
     light.intensity = 0.7;
   }
-
   async loadModel() {
     await BABYLON.SceneLoader.ImportMeshAsync(
       "",
@@ -51,12 +51,6 @@ class GameScene extends BABYLON.Scene {
       // );
       // console.log("semi_house", semi_house);
       result.meshes[0].rotation = new BABYLON.Vector3(0, 0, 0);
-      gsap.to(result.meshes[0].rotation, {
-        y: Math.PI * 2,
-        duration: 2,
-        repeat: -1,
-        ease: "linear",
-      });
       // result.meshes[1].position.x = 2;
       // result.meshes[1].position.y = 2;
       result.meshes[0].position.x = 1;
@@ -80,27 +74,23 @@ class GameScene extends BABYLON.Scene {
       // const myMesh1 = scene.getMeshByName("myMesh_1");
       // myMesh1.rotation.y = Math.PI / 2;
     });
-    // await BABYLON.SceneLoader.ImportMeshAsync(
-    //   "",
-    //   "http://localhost:8080/",
-    //   "animal.glb"
-    // ).then((result) => {
-    //   console.log("2", result);
-    //   result.meshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
-    //   result.meshes[0].position.x = -6.5;
-    //   result.meshes[0].position.z = 6.5;
-    //   result.meshes[1].rotation.y = Math.PI;
-    //   result.meshes[2].rotation.y = Math.PI;
-    //   result.meshes[3].rotation.y = Math.PI;
-    //   result.meshes[4].rotation.y = Math.PI;
-    //   result.meshes[5].rotation.y = Math.PI;
-    //   result.meshes[6].rotation.y = Math.PI;
-    //   // result.meshes[0].position.x = -9.5;
-    //   // result.meshes[0].position.y = 0.5;
-    //   // result.meshes[0].position.z = 9.5;
-    //   // const myMesh1 = scene.getMeshByName("myMesh_1");
-    //   // myMesh1.rotation.y = Math.PI / 2;
-    // });
+  }
+  #createSkyBox() {
+    const skyBox = BABYLON.MeshBuilder.CreateBox(
+      "skyBox",
+      { size: 150.0, sideOrientation: BABYLON.Mesh.BACKSIDE },
+      this
+    );
+    // const meterial = new BABYLON.StandardMaterial("skyBox", this);
+    const meterial = new BABYLON.BackgroundMaterial("skyBox", this);
+    meterial.reflectionTexture = new BABYLON.CubeTexture(
+      "http://localhost:8080/images/skybox_img1/skybox",
+      this,
+      ["_px", "_py", "_pz", "_nx", "_ny", "_nz"].map((i) => `${i}.jpeg`)
+    );
+
+    meterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyBox.material = meterial;
   }
 }
 
@@ -111,17 +101,84 @@ createEngine().then((engine) => {
     embedMode: true,
   });
   // create ground
-  var ground = BABYLON.MeshBuilder.CreateGround(
-    "ground",
-    { width: 20, height: 20 },
-    scene
-  );
+  // var ground = BABYLON.MeshBuilder.CreateGround(
+  //   "ground",
+  //   { width: 20, height: 20 },
+  //   scene
+  // );
   // give ground color
   // let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
-  const groundMat = new BABYLON.StandardMaterial("groundMat");
-  groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
-  ground.material = groundMat; //Place the material property of the ground
+
+  // const groundMat = new BABYLON.StandardMaterial("groundMat");
+  // groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
+  // ground.material = groundMat; //Place the material property of the ground
+
   // ground.material = groundMaterial;
+
+  //Create large ground for valley environment
+  /********************* */
+  // const largeGroundMat = new BABYLON.StandardMaterial("largeGroundMat");
+  // largeGroundMat.diffuseTexture = new BABYLON.Texture(
+  //   "https://assets.babylonjs.com/environments/valleygrass.png"
+  // );
+
+  // const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+  //   "largeGround",
+  //   "https://assets.babylonjs.com/environments/villageheightmap.png",
+  //   { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 }
+  // );
+  // largeGround.material = largeGroundMat;
+  /*************** */
+  //Create Village ground
+  const groundMat = new BABYLON.StandardMaterial("groundMat");
+  groundMat.diffuseTexture = new BABYLON.Texture(
+    "https://assets.babylonjs.com/environments/villagegreen.png"
+  );
+  groundMat.diffuseTexture.hasAlpha = true;
+
+  const ground = BABYLON.MeshBuilder.CreateGround("ground", {
+    width: 24,
+    height: 24,
+  });
+  ground.material = groundMat;
+
+  //large ground
+  const largeGroundMat = new BABYLON.StandardMaterial("largeGroundMat");
+  largeGroundMat.diffuseTexture = new BABYLON.Texture(
+    "https://assets.babylonjs.com/environments/valleygrass.png"
+  );
+
+  const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+    "largeGround",
+    "https://assets.babylonjs.com/environments/villageheightmap.png",
+    { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 }
+  );
+  largeGround.material = largeGroundMat;
+  largeGround.position.y = -0.01;
+
+  // tree
+  const spriteManagerTrees = new BABYLON.SpriteManager(
+    "treesManager",
+    "http://localhost:8080/palmtree.webp",
+    2000,
+    { width: 512, height: 1024 },
+    scene
+  );
+  for (let i = 0; i < 500; i++) {
+    const tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+    tree.position.x = Math.random() * -30;
+    tree.position.z = Math.random() * 20 + 8;
+    tree.position.y = 0.5;
+  }
+
+  for (let i = 0; i < 500; i++) {
+    const tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+    tree.position.x = Math.random() * 25 + 7;
+    tree.position.z = Math.random() * -35 + 8;
+    tree.position.y = 0.5;
+  }
+  // tree
+
   // add sound
   // const sound = new BABYLON.Sound(
   //   "bird",
