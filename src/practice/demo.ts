@@ -11,6 +11,7 @@ const createEngine = async () => {
   await engine.initAsync();
   return engine;
 };
+let switched = false; //on off flag
 class GameScene extends BABYLON.Scene {
   constructor(engine: BABYLON.Engine) {
     super(engine);
@@ -122,9 +123,9 @@ class GameScene extends BABYLON.Scene {
     );
 
     // Where the particles come from
-    particleSystem.emitter = new BABYLON.Vector3(-4, 1, -6); // the starting object, the emitter
-    particleSystem.minEmitBox = new BABYLON.Vector3(-0.2, 0, 0); // Starting all from
-    particleSystem.maxEmitBox = new BABYLON.Vector3(0.2, 0, 0); // To...
+    particleSystem.emitter = new BABYLON.Vector3(-4, 0.5, -6); // the starting object, the emitter
+    particleSystem.minEmitBox = new BABYLON.Vector3(-0.02, 0, 0); // Starting all from
+    particleSystem.maxEmitBox = new BABYLON.Vector3(0.02, 0, 0); // To...
 
     // Colors of all particles
     particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
@@ -162,7 +163,29 @@ class GameScene extends BABYLON.Scene {
     particleSystem.updateSpeed = 0.025;
 
     // Start the particle system
-    particleSystem.start();
+    // particleSystem.start();
+
+    // 喷泉
+    const pointerDown = (mesh) => {
+      if (mesh === fountain) {
+        //check that the picked mesh is the fountain
+        switched = !switched; //toggle switch
+        if (switched) {
+          particleSystem.start();
+        } else {
+          particleSystem.stop();
+        }
+      }
+    };
+    this.onPointerObservable.add((pointerInfo) => {
+      switch (pointerInfo.type) {
+        case BABYLON.PointerEventTypes.POINTERDOWN:
+          if (pointerInfo.pickInfo.hit) {
+            pointerDown(pointerInfo.pickInfo.pickedMesh);
+          }
+          break;
+      }
+    });
   }
 }
 
@@ -389,6 +412,7 @@ createEngine().then((engine) => {
   car.animations.push(animCar);
 
   scene.beginAnimation(car, 0, 200, true);
+  // 喷泉
   engine.runRenderLoop(() => {
     scene.render();
   });
