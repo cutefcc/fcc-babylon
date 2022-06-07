@@ -76,6 +76,11 @@ class GameScene extends BABYLON.Scene {
       // const myMesh1 = scene.getMeshByName("myMesh_1");
       // myMesh1.rotation.y = Math.PI / 2;
     });
+    // await BABYLON.SceneLoader.ImportMeshAsync(
+    //   "",
+    //   "http://localhost:8080/",
+    //   "cutefcc-2021.stl"
+    // ).then((result) => {});
   }
   #createSkyBox() {
     const skyBox = BABYLON.MeshBuilder.CreateBox(
