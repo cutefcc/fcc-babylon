@@ -33,12 +33,24 @@ class GameScene extends BABYLON.Scene {
   }
 
   createLight() {
+    // 环境光，没有阴影
     const light = new BABYLON.HemisphericLight(
       "light",
+      // 从+y打下来的光
       new BABYLON.Vector3(0, 1, 0),
       this
     );
-    light.intensity = 0.7;
+    light.intensity = 1;
+    // 平行光，让有阴影效果，或者pbr材质显示其效果
+    const light2 = new BABYLON.DirectionalLight(
+      "light2",
+      // 从+z打下来的光
+      new BABYLON.Vector3(1, 1, 1),
+      this
+    );
+    light2.intensity = 3;
+    light2.diffuse = new BABYLON.Color3(211 / 255, 111 / 255, 111 / 255);
+    light2.position = new BABYLON.Vector3(6, 6, 6);
   }
   async loadModel() {
     await BABYLON.SceneLoader.ImportMeshAsync(
@@ -54,9 +66,11 @@ class GameScene extends BABYLON.Scene {
       result.meshes[0].position.z = 5;
       // 旋转 这样是不生效的
       //   result.meshes[0].rotation.y = Math.PI / 2;
+
       const sketchfab_model =
         this.getTransformNodeById("Sketchfab_model")!.getChildren();
       console.log("sketchfab_model", sketchfab_model);
+
       //   gsap.to(result.meshes[0].rotation, {
       // 这样可以
       //   gsap.to(result.meshes[0].position, {
@@ -80,19 +94,19 @@ class GameScene extends BABYLON.Scene {
       //   });
 
       // working
-      result.meshes.forEach((item, index) => {
-        // 这个index === 0 注释后旋转很奇怪
-        if (index === 0) {
-          return;
-        }
-        item.rotation = new BABYLON.Vector3(0, 0, 0);
-        gsap.to(item.rotation, {
-          z: Math.PI * 2,
-          duration: 5,
-          repeat: -1,
-          ease: "linear",
-        });
-      });
+      // result.meshes.forEach((item, index) => {
+      //   // 这个index === 0 注释后旋转很奇怪
+      //   if (index === 0) {
+      //     return;
+      //   }
+      //   item.rotation = new BABYLON.Vector3(0, 0, 0);
+      //   gsap.to(item.rotation, {
+      //     z: Math.PI * 2,
+      //     duration: 5,
+      //     repeat: -1,
+      //     ease: "linear",
+      //   });
+      // });
     });
   }
 }
