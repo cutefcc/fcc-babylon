@@ -64,49 +64,6 @@ class GameScene extends BABYLON.Scene {
       result.meshes[0].position.x = 5;
       result.meshes[0].position.y = 5;
       result.meshes[0].position.z = 5;
-      // 旋转 这样是不生效的
-      //   result.meshes[0].rotation.y = Math.PI / 2;
-
-      const sketchfab_model =
-        this.getTransformNodeById("Sketchfab_model")!.getChildren();
-      console.log("sketchfab_model", sketchfab_model);
-
-      //   gsap.to(result.meshes[0].rotation, {
-      // 这样可以
-      //   gsap.to(result.meshes[0].position, {
-      //     z: 5,
-      //     duration: 4,
-      //   });
-
-      // not working
-      //   gsap.to(result.meshes[0].rotation, {
-      //     y: Math.PI,
-      //     duration: 2,
-      //     repeat: -1,
-      //     ease: "linear",
-      //   });
-      // not working
-      //   gsap.to(sketchfab_model?.rotation, {
-      //     y: Math.PI,
-      //     duration: 2,
-      //     repeat: -1,
-      //     ease: "linear",
-      //   });
-
-      // working
-      // result.meshes.forEach((item, index) => {
-      //   // 这个index === 0 注释后旋转很奇怪
-      //   if (index === 0) {
-      //     return;
-      //   }
-      //   item.rotation = new BABYLON.Vector3(0, 0, 0);
-      //   gsap.to(item.rotation, {
-      //     z: Math.PI * 2,
-      //     duration: 5,
-      //     repeat: -1,
-      //     ease: "linear",
-      //   });
-      // });
     });
   }
 }
@@ -117,6 +74,34 @@ createEngine().then((engine) => {
   scene.debugLayer.show({
     embedMode: true,
   });
+
+  var ground = BABYLON.MeshBuilder.CreateGround(
+    "ground",
+    { width: 20, height: 20 },
+    scene
+  );
+
+  const pbr = new BABYLON.PBRMaterial("prb", this);
+
+  pbr.albedoTexture = new BABYLON.Texture(
+    "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_albedo.jpg"
+  );
+  pbr.ambientTexture = new BABYLON.Texture(
+    "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_ao.jpg"
+  );
+  pbr.metallicTexture = new BABYLON.Texture(
+    "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_metallic.jpg"
+  );
+  pbr.bumpTexture = new BABYLON.Texture(
+    "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_normal.jpg"
+  );
+  pbr.microSurfaceTexture = new BABYLON.Texture(
+    "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_roughness.jpg"
+  );
+  pbr.useParallax = true;
+  pbr.useParallaxOcclusion = true;
+
+  ground.material = pbr;
   engine.runRenderLoop(() => {
     scene.render();
   });
