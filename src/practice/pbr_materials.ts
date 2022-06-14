@@ -98,8 +98,8 @@ createEngine().then((engine) => {
   pbr.microSurfaceTexture = new BABYLON.Texture(
     "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_roughness.jpg"
   );
-  pbr.useParallax = true;
-  pbr.useParallaxOcclusion = true;
+  pbr.useParallax = true; // 是否使用视差效果  视差贴
+  pbr.useParallaxOcclusion = true; // 是否使用视差遮盖
 
   ground.material = pbr;
   engine.runRenderLoop(() => {
