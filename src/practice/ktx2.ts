@@ -98,7 +98,7 @@ class GameScene extends BABYLON.Scene {
   }
   createBox() {
     const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, this);
-    box.position.y = 8;
+    box.position.y = 7;
     box.physicsImpostor = new BABYLON.PhysicsImpostor(
       box,
       BABYLON.PhysicsImpostor.SphereImpostor,
