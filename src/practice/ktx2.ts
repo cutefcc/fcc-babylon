@@ -8,7 +8,12 @@ import { BabylonFileLoaderConfiguration } from "@babylonjs/core";
 
 const createEngine = async () => {
   const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
-  const engine = new BABYLON.WebGPUEngine(canvas);
+  const engine = new BABYLON.WebGPUEngine(canvas, {
+    // 自动适配dpr
+    adaptToDeviceRatio: true,
+    // "low-power" | "high-performance";
+    powerPreference: "low-power",
+  });
   await engine.initAsync();
   return engine;
 };
