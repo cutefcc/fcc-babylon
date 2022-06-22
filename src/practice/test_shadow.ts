@@ -5,7 +5,7 @@ import gsap from "gsap";
 import * as earcut from "earcut";
 import { BabylonFileLoaderConfiguration } from "@babylonjs/core";
 (window as any).earcut = earcut;
-
+let shadowGenerator;
 const createEngine = async () => {
   const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
   const engine = new BABYLON.WebGPUEngine(canvas, {
@@ -21,24 +21,38 @@ const createEngine = async () => {
 let switched = false; //on off flag
 class GameScene extends BABYLON.Scene {
   #shadowGenerator!: BABYLON.ShadowGenerator;
+  #shadowGenerator2!: BABYLON.ShadowGenerator;
   constructor(engine: BABYLON.Engine) {
     super(engine);
     this.createCamera();
     this.createLight();
-    this.initCannon();
+    // this.initCannon();
     this.createGround();
     this.createBox();
   }
   createCamera() {
+    // const camera = new BABYLON.ArcRotateCamera(
+    //   "camera",
+    //   (Math.PI / 2) * 0.5,
+    //   Math.PI / 4,
+    //   16,
+    //   BABYLON.Vector3.Zero(),
+    //   this
+    // );
     const camera = new BABYLON.ArcRotateCamera(
-      "camera",
-      (Math.PI / 2) * 0.5,
-      Math.PI / 4,
-      16,
+      "Camera",
+      0,
+      0.8,
+      90,
       BABYLON.Vector3.Zero(),
       this
     );
-    camera.attachControl(this.getEngine().getRenderingCanvas());
+    camera.lowerBetaLimit = 0.1;
+    camera.upperBetaLimit = (Math.PI / 2) * 0.9;
+    camera.lowerRadiusLimit = 30;
+    camera.upperRadiusLimit = 150;
+    // camera.attachControl(canvas, true);
+    camera.attachControl(this.getEngine().getRenderingCanvas(), true);
   }
 
   initCannon() {
@@ -49,38 +63,44 @@ class GameScene extends BABYLON.Scene {
   }
 
   createLight() {
-    // 环境光，没有阴影
-    const light = new BABYLON.HemisphericLight(
-      "light",
-      // 从+y打下来的光
-      new BABYLON.Vector3(0, 7, 0),
+    // light1
+    var light = new BABYLON.DirectionalLight(
+      "dir01",
+      new BABYLON.Vector3(-1, -2, -1),
       this
     );
+    light.position = new BABYLON.Vector3(20, 40, 20);
     light.intensity = 0.5;
-    // 平行光，让有阴影效果，或者pbr材质显示其效果
-    // const light2 = new BABYLON.DirectionalLight(
-    //   "light2",
-    //   new BABYLON.Vector3(3, 3, 0),
-    //   this
-    // );
-    // light2.intensity = 3;
-    // light2.diffuse = new BABYLON.Color3(211 / 255, 111 / 255, 111 / 255);
-    // light2.position = new BABYLON.Vector3(5, 5, 0);
-    // 平行光才能 照射出投影
-    // this.#shadowGenerator = new BABYLON.CascadedShadowGenerator(512, light2);
-    var light2 = new BABYLON.DirectionalLight(
-      "DirectionalLight",
-      new BABYLON.Vector3(-1, -2, 1),
+
+    var lightSphere = BABYLON.Mesh.CreateSphere("sphere", 10, 2, this);
+    lightSphere.position = light.position;
+    lightSphere.material = new BABYLON.StandardMaterial("light", this);
+    lightSphere.material.emissiveColor = new BABYLON.Color3(1, 1, 0);
+
+    // light2
+    var light2 = new BABYLON.SpotLight(
+      "spot02",
+      new BABYLON.Vector3(30, 40, 20),
+      new BABYLON.Vector3(-1, -2, -1),
+      1.1,
+      16,
       this
     );
+    light2.intensity = 0.5;
 
-    light2.intensity = 3;
-    light2.autoCalcShadowZBounds = true;
-    this.#shadowGenerator = new BABYLON.ShadowGenerator(1024, light2);
-    this.#shadowGenerator.usePoissonSampling = true;
-    this.#shadowGenerator.useExponentialShadowMap = true;
-    this.#shadowGenerator.useBlurExponentialShadowMap = true; // 解决光穿透问题
-    this.#shadowGenerator.blurKernel = 64; // 光线棱角模糊
+    var lightSphere2 = BABYLON.Mesh.CreateSphere("sphere", 10, 2, this);
+    lightSphere2.position = light2.position;
+    lightSphere2.material = new BABYLON.StandardMaterial("light", this);
+    lightSphere2.material.emissiveColor = new BABYLON.Color3(1, 1, 0);
+
+    // Shadows
+    shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
+    // this.#shadowGenerator.addShadowCaster(torus);
+    shadowGenerator.useExponentialShadowMap = true;
+
+    // this.#shadowGenerator2 = new BABYLON.ShadowGenerator(1024, light2);
+    // // this.#shadowGenerator2.addShadowCaster(torus);
+    // this.#shadowGenerator2.usePoissonSampling = true;
   }
 
   createGround() {
@@ -111,30 +131,15 @@ class GameScene extends BABYLON.Scene {
     pbr.useParallaxOcclusion = true; // 是否使用视差遮盖
 
     ground.material = pbr;
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(
-      ground,
-      BABYLON.PhysicsImpostor.BoxImpostor,
-      { mass: 0, restitution: 0.9 }
-    );
     // 让ground能接受 shadow
     ground.receiveShadows = true;
   }
   createBox() {
     const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, this);
     box.position.y = 3;
-    box.physicsImpostor = new BABYLON.PhysicsImpostor(
-      box,
-      BABYLON.PhysicsImpostor.SphereImpostor,
-      { mass: 1, restitution: 0.9 }
-    );
-
-    const material = new BABYLON.StandardMaterial("material", this);
-    const url = "http://localhost:8080/pbr/assets/crate.ktx2";
-    material.diffuseTexture = new BABYLON.Texture(url);
-    // console.log("---", this.#shadowGenerator.getShadowMap().renderList.push);
-    // this.#shadowGenerator.getShadowMap().renderList.push(box);
-    // this.#shadowGenerator.addShadowCaster(box);
-    box.material = material;
+    // shadowGenerator.getShadowMap().renderList.push(box);
+    shadowGenerator.addShadowCaster(box);
+    // this.#shadowGenerator2.addShadowCaster(box);
   }
 }
 
