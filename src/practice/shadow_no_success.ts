@@ -13,13 +13,14 @@ const createEngine = async () => {
     adaptToDeviceRatio: true,
     // "low-power" | "high-performance";   在webGPU 和webGL里面都有的，都是对原生的封装
     // 低功耗模式 和 高性能模式
-    powerPreference: "low-power",
+    powerPreference: "high-performance",
   });
   await engine.initAsync();
   return engine;
 };
 let switched = false; //on off flag
 class GameScene extends BABYLON.Scene {
+  #shadowGenerator!: BABYLON.ShadowGenerator;
   constructor(engine: BABYLON.Engine) {
     super(engine);
     this.createCamera();
@@ -52,26 +53,39 @@ class GameScene extends BABYLON.Scene {
     const light = new BABYLON.HemisphericLight(
       "light",
       // 从+y打下来的光
-      new BABYLON.Vector3(0, 1, 0),
+      new BABYLON.Vector3(0, 7, 0),
       this
     );
-    light.intensity = 1;
+    light.intensity = 0.5;
     // 平行光，让有阴影效果，或者pbr材质显示其效果
-    const light2 = new BABYLON.DirectionalLight(
-      "light2",
-      // 从+z打下来的光
-      new BABYLON.Vector3(1, 1, 1),
+    // const light2 = new BABYLON.DirectionalLight(
+    //   "light2",
+    //   new BABYLON.Vector3(3, 3, 0),
+    //   this
+    // );
+    // light2.intensity = 3;
+    // light2.diffuse = new BABYLON.Color3(211 / 255, 111 / 255, 111 / 255);
+    // light2.position = new BABYLON.Vector3(5, 5, 0);
+    // 平行光才能 照射出投影
+    // this.#shadowGenerator = new BABYLON.CascadedShadowGenerator(512, light2);
+    var light2 = new BABYLON.DirectionalLight(
+      "DirectionalLight",
+      new BABYLON.Vector3(-1, -2, 1),
       this
     );
+
     light2.intensity = 3;
-    light2.diffuse = new BABYLON.Color3(211 / 255, 111 / 255, 111 / 255);
-    light2.position = new BABYLON.Vector3(6, 6, 6);
+    light2.autoCalcShadowZBounds = true;
+    this.#shadowGenerator = new BABYLON.ShadowGenerator(1024, light2);
+    this.#shadowGenerator.usePoissonSampling = true;
+    this.#shadowGenerator.useExponentialShadowMap = true;
+  
   }
 
   createGround() {
     var ground = BABYLON.MeshBuilder.CreateGround(
       "ground",
-      { width: 20, height: 20 },
+      { width: 10, height: 10 },
       this
     );
 
@@ -101,10 +115,12 @@ class GameScene extends BABYLON.Scene {
       BABYLON.PhysicsImpostor.BoxImpostor,
       { mass: 0, restitution: 0.9 }
     );
+    // 让ground能接受 shadow
+    ground.receiveShadows = true;
   }
   createBox() {
     const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, this);
-    box.position.y = 7;
+    box.position.y = 3;
     box.physicsImpostor = new BABYLON.PhysicsImpostor(
       box,
       BABYLON.PhysicsImpostor.SphereImpostor,
@@ -114,7 +130,8 @@ class GameScene extends BABYLON.Scene {
     const material = new BABYLON.StandardMaterial("material", this);
     const url = "http://localhost:8080/pbr/assets/crate.ktx2";
     material.diffuseTexture = new BABYLON.Texture(url);
-
+    // console.log("---", this.#shadowGenerator.getShadowMap().renderList.push);
+    // this.#shadowGenerator.getShadowMap().renderList.push(box);
     box.material = material;
   }
 }
