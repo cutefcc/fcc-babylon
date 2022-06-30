@@ -70,11 +70,13 @@ class GameScene extends BABYLON.Scene {
     // this.#shadowGenerator = new BABYLON.CascadedShadowGenerator(512, light2);
     var light2 = new BABYLON.DirectionalLight(
       "DirectionalLight",
+      // direction -1 -2 1 (X,Y,Z)
+      // position 1,2,-1
       new BABYLON.Vector3(-1, -2, 1),
       this
     );
 
-    light2.intensity = 3;
+    light2.intensity = 5;
     light2.autoCalcShadowZBounds = true;
     this.#shadowGenerator = new BABYLON.ShadowGenerator(1024, light2);
     this.#shadowGenerator.usePoissonSampling = true;
@@ -93,19 +95,19 @@ class GameScene extends BABYLON.Scene {
     const pbr = new BABYLON.PBRMaterial("prb", this);
 
     pbr.albedoTexture = new BABYLON.Texture(
-      "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_albedo.jpg"
+      "http://www.cutefcc.com:81/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_albedo.jpg"
     );
     pbr.ambientTexture = new BABYLON.Texture(
-      "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_ao.jpg"
+      "http://www.cutefcc.com:81/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_ao.jpg"
     );
     pbr.metallicTexture = new BABYLON.Texture(
-      "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_metallic.jpg"
+      "http://www.cutefcc.com:81/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_metallic.jpg"
     );
     pbr.bumpTexture = new BABYLON.Texture(
-      "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_normal.jpg"
+      "http://www.cutefcc.com:81/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_normal.jpg"
     );
     pbr.microSurfaceTexture = new BABYLON.Texture(
-      "http://localhost:8080/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_roughness.jpg"
+      "http://www.cutefcc.com:81/pbr/assets/texture/TexturesCom_Metal_TreadplateBare_1K_roughness.jpg"
     );
     pbr.useParallax = true; // 是否使用视差效果  视差贴
     pbr.useParallaxOcclusion = true; // 是否使用视差遮盖
@@ -121,7 +123,7 @@ class GameScene extends BABYLON.Scene {
   }
   createBox() {
     const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, this);
-    box.position.y = 3;
+    box.position.y = 6;
     box.physicsImpostor = new BABYLON.PhysicsImpostor(
       box,
       BABYLON.PhysicsImpostor.SphereImpostor,
@@ -129,10 +131,10 @@ class GameScene extends BABYLON.Scene {
     );
 
     const material = new BABYLON.StandardMaterial("material", this);
-    const url = "http://localhost:8080/pbr/assets/crate.ktx2";
+    const url = "http://www.cutefcc.com:81/pbr/assets/crate.ktx2";
     material.diffuseTexture = new BABYLON.Texture(url);
     // console.log("---", this.#shadowGenerator.getShadowMap().renderList.push);
-    // this.#shadowGenerator.getShadowMap().renderList.push(box);
+    this.#shadowGenerator?.getShadowMap().renderList?.push(box);
     // this.#shadowGenerator.addShadowCaster(box);
     box.material = material;
   }
